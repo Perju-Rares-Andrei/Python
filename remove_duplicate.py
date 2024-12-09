@@ -64,7 +64,6 @@ def prompt_user_to_remove(duplicates):
                     print(f"Could not delete file {file}: {e}")
 
 
-
 if __name__ == "__main__":
     if len(sys.argv) != 2:
         print("Usage: python remove_duplicate.py <folder>")
@@ -75,19 +74,24 @@ if __name__ == "__main__":
         print(f"The specified path is not a folder: {folder}")
         sys.exit(1)
 
-    list_files(folder)
+    while True:
+        list_files(folder)
 
-    files_by_size = group_files_by_size(folder)
-    for size, files in files_by_size.items():
-        print(f"Size: {size} bytes -> Files: {files}")
+        files_by_size = group_files_by_size(folder)
+        for size, files in files_by_size.items():
+            print(f"Size: {size} bytes -> Files: {files}")
 
+        duplicates = find_duplicates_by_comparison(files_by_size)
+        print("Duplicate files:")
+        for original, duplicate in duplicates:
+            print(f"{original} == {duplicate}")
 
-    duplicates = find_duplicates_by_comparison(files_by_size)
-    print("Duplicate files:")
-    for original, duplicate in duplicates:
-        print(f"{original} == {duplicate}")
+        if not duplicates:
+            print("No duplicate files found.")
+        else:
+            prompt_user_to_remove(duplicates)
 
-    if not duplicates:
-        print("No duplicate files found.")
-    else:
-        prompt_user_to_remove(duplicates)
+        user_input = input("\nEnter 'exit' to quit or press Enter to remove more duplicates: ").strip().lower()
+        if user_input == 'exit':
+            print("Exiting program.")
+            break

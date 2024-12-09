@@ -31,6 +31,40 @@ def find_duplicates_by_comparison(files_by_size):
                     except Exception as e:
                         print(f"Could not compare {files[i]} and {files[j]}: {e}")
     return duplicates
+
+
+def prompt_user_to_remove(duplicates):
+    grouped_duplicates = {}
+    for original, duplicate in duplicates:
+        grouped_duplicates.setdefault(original, []).append(duplicate)
+
+    for original, dupes in grouped_duplicates.items():
+        print("\nThe following files are identical:")
+        files = [original] + dupes
+        for i, file in enumerate(files, 1):
+            print(f"{i}. {file}")
+
+        while True:
+            try:
+                choice = int(input(f"Please select the file you want to keep [1..{len(files)}] ? "))
+                if 1 <= choice <= len(files):
+                    break
+                else:
+                    print("Invalid choice. Please select a valid option.")
+            except ValueError:
+                print("Invalid input. Please enter a number.")
+
+        to_keep = files[choice - 1]
+        for file in files:
+            if file != to_keep:
+                try:
+                    os.remove(file)
+                    print(f"Deleted: {file}")
+                except Exception as e:
+                    print(f"Could not delete file {file}: {e}")
+
+
+
 if __name__ == "__main__":
     if len(sys.argv) != 2:
         print("Usage: python remove_duplicate.py <folder>")
@@ -52,3 +86,8 @@ if __name__ == "__main__":
     print("Duplicate files:")
     for original, duplicate in duplicates:
         print(f"{original} == {duplicate}")
+
+    if not duplicates:
+        print("No duplicate files found.")
+    else:
+        prompt_user_to_remove(duplicates)
